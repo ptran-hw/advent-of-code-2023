@@ -1,13 +1,16 @@
 package main
 
 import (
+	"github.com/ptran-hw/advent-of-code-2023/day1"
 	"log"
 	"os"
 	"time"
 )
 
 // use pointer to Solver for mutable instance
-var solvers = map[string]Solver{}
+var solvers = map[string]Solver{
+	"1": day1.Solver{},
+}
 
 type Solver interface {
 	Solve()
