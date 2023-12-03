@@ -5,10 +5,32 @@ import (
 	"log"
 	"os"
 	"strings"
-	"unicode"
 )
 
 const calibrationDocumentFile = "./day1/calibration-document.txt"
+
+var tokenToDigitMap = map[string]string{
+	"1":     "1",
+	"one":   "1",
+	"2":     "2",
+	"two":   "2",
+	"3":     "3",
+	"three": "3",
+	"4":     "4",
+	"four":  "4",
+	"5":     "5",
+	"five":  "5",
+	"6":     "6",
+	"six":   "6",
+	"7":     "7",
+	"seven": "7",
+	"8":     "8",
+	"eight": "8",
+	"9":     "9",
+	"nine":  "9",
+	"0":     "0",
+	"zero":  "0",
+}
 
 // consider extracting the reader into a shared file,
 // then we can define function to map []string to easier type to work with
@@ -50,77 +72,41 @@ func getSampleCalibrationDocumentWithWords() []string {
 	}
 }
 
-func filterDigitChars(line string) string {
-	stringBuilder := strings.Builder{}
+func findFirst(str string, tokens []string) string {
+	minIndex := len(str)
+	result := ""
 
-	for _, runeValue := range line {
-		if unicode.IsDigit(runeValue) {
-			stringBuilder.WriteString(string(runeValue))
+	for _, currToken := range tokens {
+		currTokenIndex := strings.Index(str, currToken)
+		if currTokenIndex != -1 && currTokenIndex < minIndex {
+			minIndex = currTokenIndex
+			result = currToken
 		}
 	}
 
-	return stringBuilder.String()
+	return result
 }
 
-func filterDigitCharsWithTokens(line string, tokens []string) string {
-	digitChars := strings.Builder{}
+func findLast(str string, tokens []string) string {
+	maxIndex := -1
+	result := ""
 
-	buffer := strings.Builder{}
-	for _, runeValue := range line {
-		charValue := string(runeValue)
-		buffer.WriteString(charValue)
-
-		bufferStr := buffer.String()
-	tokenLoop:
-		for _, token := range tokens {
-			if strings.Contains(bufferStr, token) {
-				switch token {
-				case "0", "zero":
-					digitChars.WriteString("0")
-					break
-				case "1", "one":
-					digitChars.WriteString("1")
-					break
-				case "2", "two":
-					digitChars.WriteString("2")
-					break
-				case "3", "three":
-					digitChars.WriteString("3")
-					break
-				case "4", "four":
-					digitChars.WriteString("4")
-					break
-				case "5", "five":
-					digitChars.WriteString("5")
-					break
-				case "6", "six":
-					digitChars.WriteString("6")
-					break
-				case "7", "seven":
-					digitChars.WriteString("7")
-					break
-				case "8", "eight":
-					digitChars.WriteString("8")
-					break
-				case "9", "nine":
-					digitChars.WriteString("9")
-					break
-				default:
-					log.Panic("unable to handle unexpected token:", token)
-				}
-
-				// handles the edge case of overlapping words (eg. nineight)
-				tailRune := []rune(buffer.String())[buffer.Len()-1]
-				buffer.Reset()
-
-				if !unicode.IsDigit(tailRune) {
-					buffer.WriteRune(tailRune)
-				}
-
-				break tokenLoop
-			}
+	for _, currToken := range tokens {
+		currTokenIndex := strings.LastIndex(str, currToken)
+		if currTokenIndex > maxIndex {
+			maxIndex = currTokenIndex
+			result = currToken
 		}
 	}
 
-	return digitChars.String()
+	return result
+}
+
+func convertToDigit(token string) string {
+	digit, isFound := tokenToDigitMap[token]
+	if !isFound {
+		log.Panic("unable to handle unexpected token:", token)
+	}
+
+	return digit
 }

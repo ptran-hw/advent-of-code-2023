@@ -2,6 +2,7 @@ package day1
 
 import (
 	"fmt"
+	"github.com/agrison/go-commons-lang/stringUtils"
 	"log"
 	"strconv"
 )
@@ -12,10 +13,8 @@ var wordTokens = []string{"one", "two", "three", "four", "five", "six", "seven",
 type Solver struct{}
 
 func (s Solver) Solve() {
-	//linesA := getSampleCalibrationDocument()
-	linesA := readCalibrationDocument()
-	//linesB := getSampleCalibrationDocumentWithWords()
-	linesB := readCalibrationDocument()
+	//linesA, linesB := getSampleCalibrationDocument(), getSampleCalibrationDocumentWithWords()
+	linesA, linesB := readCalibrationDocument(), readCalibrationDocument()
 
 	solveCalibrationValueSum(linesA)
 	solveCalibrationValueSumIncludingWords(linesB)
@@ -30,14 +29,15 @@ Note:
 - when there is one digit in line, it will be used as both first and last digit
 */
 func solveCalibrationValueSum(lines []string) {
-	sum := 0
+	numberTokens := digitTokens
 
+	sum := 0
 	for _, line := range lines {
-		value := calculateCalibrationValue(line)
+		value := calculateCalibrationValueWithTokens(line, numberTokens)
 		sum += value
 	}
 
-	log.Println("calibration value sum:", sum)
+	log.Println("using digits only, calibration value sum:", sum)
 }
 
 /*
@@ -58,26 +58,21 @@ func solveCalibrationValueSumIncludingWords(lines []string) {
 		sum += calculateCalibrationValueWithTokens(line, numberTokens)
 	}
 
-	log.Printf("using the tokens: %v, calibration value sum: %d", numberTokens, sum)
-}
-
-func calculateCalibrationValue(line string) int {
-	digits := filterDigitChars(line)
-
-	calibrationValue := fmt.Sprintf("%c%c", digits[0], digits[len(digits)-1])
-
-	value, err := strconv.Atoi(calibrationValue)
-	if err != nil {
-		log.Panicf("unable to parse calculation value from: %s, %v", line, err)
-	}
-
-	return value
+	log.Printf("using digits and words, calibration value sum: %d", sum)
 }
 
 func calculateCalibrationValueWithTokens(line string, tokens []string) int {
-	digits := filterDigitCharsWithTokens(line, tokens)
+	firstToken := findFirst(line, tokens)
+	if stringUtils.IsEmpty(firstToken) {
+		log.Panicf("unable to find first token %v in line: %s", tokens, line)
+	}
 
-	calibrationValue := fmt.Sprintf("%c%c", digits[0], digits[len(digits)-1])
+	lastToken := findLast(line, tokens)
+	if stringUtils.IsEmpty(lastToken) {
+		log.Panicf("unable to find last token %v in line: %s", tokens, line)
+	}
+
+	calibrationValue := fmt.Sprintf("%s%s", convertToDigit(firstToken), convertToDigit(lastToken))
 
 	value, err := strconv.Atoi(calibrationValue)
 	if err != nil {
