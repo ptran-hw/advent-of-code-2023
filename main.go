@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/ptran-hw/advent-of-code-2023/day1"
 	"github.com/ptran-hw/advent-of-code-2023/day2"
+	"github.com/ptran-hw/advent-of-code-2023/day3"
 	"log"
 	"os"
 	"time"
@@ -12,6 +13,7 @@ import (
 var solvers = map[string]Solver{
 	"1": day1.Solver{},
 	"2": day2.Solver{},
+	"3": day3.Solver{},
 }
 
 type Solver interface {
