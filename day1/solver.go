@@ -37,7 +37,7 @@ func solveCalibrationValueSum(lines []string) {
 		sum += value
 	}
 
-	log.Println("using digits only, calibration value sum:", sum)
+	log.Println("[using digits only] calibration value sum:", sum)
 }
 
 /*
@@ -58,7 +58,7 @@ func solveCalibrationValueSumIncludingWords(lines []string) {
 		sum += calculateCalibrationValueWithTokens(line, numberTokens)
 	}
 
-	log.Printf("using digits and words, calibration value sum: %d", sum)
+	log.Printf("[using digits and words] calibration value sum: %d", sum)
 }
 
 func calculateCalibrationValueWithTokens(line string, tokens []string) int {

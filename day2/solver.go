@@ -29,6 +29,10 @@ func (s Solver) Solve() {
 	solveMinimumCubesPowerValue(games)
 }
 
+/*
+Given games []Game, which consist of id and rounds
+Find the valid games (based on max cube count) and sum their ids
+*/
 func solveValidGamesIdSum(games []Game) {
 	validGames := filterValidGames(games)
 
@@ -40,6 +44,11 @@ func solveValidGamesIdSum(games []Game) {
 	log.Println("total sum of valid game ids:", total)
 }
 
+/*
+Given games []Game, consisting of id and rounds
+Determine the minimum number of cubes needed to satisfy the rounds
+Return the sum of their power levels (product of minimum cubes of each colour)
+*/
 func solveMinimumCubesPowerValue(games []Game) {
 	gameMinimumRequiredCubes := calculateMinimumRequiredCubes(games)
 

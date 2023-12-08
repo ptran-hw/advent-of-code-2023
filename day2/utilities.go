@@ -39,7 +39,7 @@ func readGames() []Game {
 		}
 
 		currGame := Game{
-			id: id,
+			id:     id,
 			rounds: parseRounds(matches[2]),
 		}
 		games = append(games, currGame)
@@ -96,45 +96,44 @@ func getSampleGames() []Game {
 		{
 			id: 1,
 			rounds: []Round{
-				{ blueCubes: 3, redCubes: 4 },
-				{ blueCubes: 6, redCubes: 1, greenCubes: 2 },
-				{ greenCubes: 2 },
+				{blueCubes: 3, redCubes: 4},
+				{blueCubes: 6, redCubes: 1, greenCubes: 2},
+				{greenCubes: 2},
 			},
 		},
 		{
 			id: 2,
 			rounds: []Round{
-				{ blueCubes: 1, greenCubes: 2 },
-				{ blueCubes: 4, redCubes: 1, greenCubes: 3 },
-				{ blueCubes: 1, greenCubes: 1 },
+				{blueCubes: 1, greenCubes: 2},
+				{blueCubes: 4, redCubes: 1, greenCubes: 3},
+				{blueCubes: 1, greenCubes: 1},
 			},
 		},
 		{
 			id: 3,
 			rounds: []Round{
-				{ blueCubes: 6, redCubes: 20, greenCubes: 8 },
-				{ blueCubes: 5, redCubes: 4, greenCubes: 13 },
-				{ redCubes: 1, greenCubes: 5 },
+				{blueCubes: 6, redCubes: 20, greenCubes: 8},
+				{blueCubes: 5, redCubes: 4, greenCubes: 13},
+				{redCubes: 1, greenCubes: 5},
 			},
 		},
 		{
 			id: 4,
 			rounds: []Round{
-				{ blueCubes: 6, redCubes: 1, greenCubes: 3 },
-				{ redCubes: 6, greenCubes: 3 },
-				{ blueCubes: 15, redCubes: 14, greenCubes: 3 },
+				{blueCubes: 6, redCubes: 1, greenCubes: 3},
+				{redCubes: 6, greenCubes: 3},
+				{blueCubes: 15, redCubes: 14, greenCubes: 3},
 			},
 		},
 		{
 			id: 5,
 			rounds: []Round{
-				{ blueCubes: 1, redCubes: 6, greenCubes: 3 },
-				{ blueCubes: 2, redCubes: 1, greenCubes: 2 },
+				{blueCubes: 1, redCubes: 6, greenCubes: 3},
+				{blueCubes: 2, redCubes: 1, greenCubes: 2},
 			},
 		},
 	}
 }
-
 
 func getMax(a, b int) int {
 	if a >= b {
