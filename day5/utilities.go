@@ -9,11 +9,39 @@ import (
 	"strings"
 )
 
-const gardenDataFile = "./day5/garden-data.txt"
-var seedPattern = regexp.MustCompile("seeds: (.*)")
+const seedDataFile = "./day5/initial-seed.txt"
+const gardenDataFile = "./day5/garden-map.txt"
+
 var rulePattern = regexp.MustCompile("^\\d+ \\d+ \\d+$")
 
-func readGardenData() ([]int, [][]ConversionRule) {
+func readSeedData() []int {
+	file, err := os.Open(seedDataFile)
+	if err != nil {
+		log.Panicf("unable to read file: %v", err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+
+	if !scanner.Scan() {
+		log.Panic("invalid seed data file")
+	}
+
+	line := scanner.Text()
+
+	seeds := make([]int, 0)
+	for _, token := range strings.Split(line, " ") {
+		intValue, err := strconv.Atoi(token)
+		if err != nil {
+			log.Panicf("unable to parse seed value: %s", token)
+		}
+
+		seeds = append(seeds, intValue)
+	}
+
+	return seeds
+}
+
+func readGardenData() [][]ConversionRule {
 	file, err := os.Open(gardenDataFile)
 	if err != nil {
 		log.Panicf("unable to read file: %v", err)
@@ -21,23 +49,6 @@ func readGardenData() ([]int, [][]ConversionRule) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-
-	seedValues := make([]int, 0)
-	if scanner.Scan() {
-		rawSeedValues := seedPattern.FindStringSubmatch(scanner.Text())[1]
-		for _, rawSeedValue := range strings.Split(rawSeedValues, " ") {
-			value, err := strconv.Atoi(rawSeedValue)
-			if err != nil {
-				log.Panicf("unable to parse seed value: %s", rawSeedValue)
-			}
-
-			seedValues = append(seedValues, value)
-		}
-	}
-
-	if len(seedValues) == 0 {
-		log.Panic("invalid garden data, missing seed values")
-	}
 
 	conversionGroups := make([][]ConversionRule, 0)
 	for scanner.Scan() {
@@ -73,7 +84,7 @@ func readGardenData() ([]int, [][]ConversionRule) {
 		conversionGroups = append(conversionGroups, conversionRules)
 	}
 
-	return seedValues, conversionGroups
+	return conversionGroups
 }
 
 func getSampleSeedValues() []int {
@@ -83,36 +94,67 @@ func getSampleSeedValues() []int {
 func getSampleConversionGroups() [][]ConversionRule {
 	return [][]ConversionRule{
 		{
-			{ start: 98, end: 99, offset: -48 },
-			{ start: 50, end: 97, offset: 2 },
+			{start: 98, end: 99, offset: -48},
+			{start: 50, end: 97, offset: 2},
 		},
 		{
-			{ start: 52, end: 53, offset: -15 },
-			{ start: 15, end: 51, offset: -15 },
-			{ start: 0, end: 14, offset: 39 },
+			{start: 52, end: 53, offset: -15},
+			{start: 15, end: 51, offset: -15},
+			{start: 0, end: 14, offset: 39},
 		},
 		{
-			{ start: 53, end: 60, offset: -4 },
-			{ start: 11, end: 52, offset: -11 },
-			{ start: 7, end: 10, offset: 50 },
-			{ start: 0, end: 6, offset: 42 },
+			{start: 53, end: 60, offset: -4},
+			{start: 11, end: 52, offset: -11},
+			{start: 7, end: 10, offset: 50},
+			{start: 0, end: 6, offset: 42},
 		},
 		{
-			{ start: 25, end: 94, offset: -7 },
-			{ start: 18, end: 24, offset: 70 },
+			{start: 25, end: 94, offset: -7},
+			{start: 18, end: 24, offset: 70},
 		},
 		{
-			{ start: 77, end: 99, offset: -32 },
-			{ start: 64, end: 76, offset: 4 },
-			{ start: 45, end: 63, offset: 36 },
+			{start: 77, end: 99, offset: -32},
+			{start: 64, end: 76, offset: 4},
+			{start: 45, end: 63, offset: 36},
 		},
 		{
-			{ start: 69, end: 69, offset: -69 },
-			{ start: 0, end: 68, offset: 1 },
+			{start: 69, end: 69, offset: -69},
+			{start: 0, end: 68, offset: 1},
 		},
 		{
-			{ start: 93, end: 96, offset: -37 },
-			{ start: 56, end: 92, offset: 4 },
+			{start: 93, end: 96, offset: -37},
+			{start: 56, end: 92, offset: 4},
 		},
+	}
+}
+
+// returns overlapping range, prior non-overlapping range, after non-overlapping range
+func splitOverlappingRange(valueRange, ruleRange []int) ([]int, []int, []int) {
+	switch {
+	case valueRange == nil:
+		return nil, nil, nil
+	case valueRange[1] < ruleRange[0]:
+		return nil, valueRange, nil
+	case valueRange[0] < ruleRange[0] && valueRange[1] <= ruleRange[1]:
+		return []int{ruleRange[0], valueRange[1]}, []int{valueRange[0], ruleRange[0] - 1}, nil
+	case valueRange[0] < ruleRange[0] && ruleRange[1] < valueRange[1]:
+		return []int{ruleRange[0], valueRange[1]}, []int{valueRange[0], ruleRange[0] - 1}, []int{ruleRange[1] + 1, valueRange[1]}
+	case ruleRange[0] <= valueRange[0] && valueRange[1] <= ruleRange[1]:
+		return valueRange, nil, nil
+	case ruleRange[0] <= valueRange[0] && valueRange[0] <= ruleRange[1] && ruleRange[1] < valueRange[1]:
+		return []int{valueRange[0], ruleRange[1]}, nil, []int{ruleRange[1] + 1, valueRange[1]}
+	case ruleRange[1] < valueRange[0]:
+		return nil, nil, valueRange
+	}
+
+	log.Panic("unreachable statement")
+	return nil, nil, nil
+}
+
+func getMin(a, b int) int {
+	if a <= b {
+		return a
+	} else {
+		return b
 	}
 }

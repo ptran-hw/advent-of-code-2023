@@ -5,22 +5,29 @@ import (
 	"math"
 )
 
-type Solver struct {}
+type Solver struct{}
 
 type ScratchCard struct {
-	id int
+	id             int
 	winningNumbers []int
-	cardNumbers []int
+	cardNumbers    []int
 }
 
 func (s Solver) Solve() {
-	//scratchCards := getSampleScratchCards()
+	// scratchCards := getSampleScratchCards()
 	scratchCards := readScratchCards()
 
 	solveScratchCardPointSum(scratchCards)
-	solveMultiplyingScratchCardPointSum(scratchCards)
+	solveMultiplyingScratchCardSum(scratchCards)
 }
 
+/*
+Given scratch cards []ScratchCard, which has winning numbers and card numbers
+Sum the score of each scratch card
+
+Note: the scoring is based on amount of overlapping winning and card numbers
+- the scoring sequence: 0, 1, 2, 4, 8, 16, ...
+*/
 func solveScratchCardPointSum(scratchCards []ScratchCard) {
 	totalScore := 0
 
@@ -33,7 +40,15 @@ func solveScratchCardPointSum(scratchCards []ScratchCard) {
 	log.Println("scratch cards total score:", totalScore)
 }
 
-func solveMultiplyingScratchCardPointSum(scratchCards []ScratchCard) {
+/*
+Given scratch cards []ScratchCard, which has winning numbers and card numbers
+Sum the total cards in possession after processing the cards in order
+
+Note: overlapping winning numbers grants additional scratch cards
+- one overlapping number grants one card of the next scratch card
+- two overlapping numbers grants one card each of the next two scratch cards
+*/
+func solveMultiplyingScratchCardSum(scratchCards []ScratchCard) {
 	scratchCardCount := make(map[int]int)
 	for _, currScratchCard := range scratchCards {
 		scratchCardCount[currScratchCard.id]++
@@ -43,36 +58,21 @@ func solveMultiplyingScratchCardPointSum(scratchCards []ScratchCard) {
 		scoringNumberCount := countOverlappingValues(currScratchCard.cardNumbers, currScratchCard.winningNumbers)
 
 		for offset := 1; offset <= scoringNumberCount; offset++ {
-			_, isFound := scratchCardCount[currScratchCard.id + offset]
+			_, isFound := scratchCardCount[currScratchCard.id+offset]
 			if !isFound {
 				break
 			}
 
-			scratchCardCount[currScratchCard.id + offset] += scratchCardCount[currScratchCard.id]
+			scratchCardCount[currScratchCard.id+offset] += scratchCardCount[currScratchCard.id]
 		}
 	}
 
 	totalCount := 0
-	for _, value := range scratchCardCount {
-		totalCount += value
+	for _, currScratchCardCount := range scratchCardCount {
+		totalCount += currScratchCardCount
 	}
 
 	log.Println("multiplying scratch cards total count:", totalCount)
-}
-
-// assuming that a winning number can only show up at most once in card numbers
-func countOverlappingValues(arrA, arrB []int) int {
-	overlappingCount := 0
-
-	for _, valueA := range arrA {
-		for _, valueB := range arrB {
-			if valueA == valueB {
-				overlappingCount++
-			}
-		}
-	}
-
-	return overlappingCount
 }
 
 func calculateScore(matchingNumbers int) int {
@@ -82,7 +82,7 @@ func calculateScore(matchingNumbers int) int {
 	case 1:
 		return 1
 	default:
-		value := math.Pow(2, float64(matchingNumbers - 1))
+		value := math.Pow(2, float64(matchingNumbers-1))
 		return int(value)
 	}
 }
